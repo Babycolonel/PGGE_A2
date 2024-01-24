@@ -66,7 +66,7 @@ namespace PGGE
 
             mCameraTransform.position = position;
 
-            base.RepositionCamera();
+            //base.RepositionCamera();
         }
     }
 }

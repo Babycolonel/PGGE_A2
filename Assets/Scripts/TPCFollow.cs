@@ -39,7 +39,7 @@ namespace PGGE
                 desiredPosition, Time.deltaTime * CameraConstants.Damping);
             mCameraTransform.position = position;
 
-            base.RepositionCamera();
+            //base.RepositionCamera();
         }
     }
 }
