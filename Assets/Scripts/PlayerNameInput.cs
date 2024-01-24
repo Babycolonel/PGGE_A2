@@ -15,16 +15,8 @@ public class PlayerNameInput : MonoBehaviour
     {
         mInputField = this.GetComponent<InputField>();
 
-        string defaultName = string.Empty;
-        if (mInputField != null)
-        {
-            if (PlayerPrefs.HasKey(playerNamePrefKey))
-            {
-                defaultName = PlayerPrefs.GetString(playerNamePrefKey);
-                mInputField.text = defaultName;
-            }
-        }
-        PhotonNetwork.NickName = defaultName;
+        //Second refactor
+        LoadPlayerName();
     }
 
     public void SetPlayerName()
@@ -39,6 +31,20 @@ public class PlayerNameInput : MonoBehaviour
         PlayerPrefs.SetString(playerNamePrefKey, value);
 
         Debug.Log("Nickname entered: " + value);
+    }
+
+    private void LoadPlayerName()
+    {
+        string defaultName = string.Empty;
+        if (mInputField != null)
+        {
+            if (PlayerPrefs.HasKey(playerNamePrefKey))
+            {
+                defaultName = PlayerPrefs.GetString(playerNamePrefKey);
+                mInputField.text = defaultName;
+            }
+        }
+        PhotonNetwork.NickName = defaultName;
     }
 
 }
