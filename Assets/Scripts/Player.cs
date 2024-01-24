@@ -2,9 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PGGE.Patterns;
+using PGGE;
+using Photon.Pun;
 
 public class Player : MonoBehaviour
 {
+    #region Multiplayer capability
+    private PhotonView mPhotonView;
+    #endregion
     [HideInInspector]
     public FSM mFsm = new FSM();
     public Animator mAnimator;
@@ -30,26 +35,41 @@ public class Player : MonoBehaviour
     public LayerMask mPlayerMask;
     public Canvas mCanvas;
     public RectTransform mCrossHair;
+    public AudioSource mAudioSource;
+
+
 
 
     public GameObject mBulletPrefab;
     public float mBulletSpeed = 10.0f;
 
     public int[] RoundsPerSecond = new int[3];
-    bool[] mFiring = new bool[3];
+    //bool[] mFiring = new bool[3];
 
 
     // Start is called before the first frame update
     void Start()
     {
+        //Multiplayer Capability
+        mPhotonView = gameObject.GetComponent<PhotonView>();
         mFsm.Add(new PlayerState_MOVEMENT(this));
         mFsm.Add(new PlayerState_ATTACK(this));
         mFsm.Add(new PlayerState_RELOAD(this));
         mFsm.SetCurrentState((int)PlayerStateType.MOVEMENT);
+
+        PlayerConstants.PlayerMask = mPlayerMask;
+
+
     }
 
     void Update()
     {
+        //Multiplayer capability
+        //Update is called only if this scipt is
+        //local to me.
+        if (!mPhotonView.IsMine) return;
+
+        //Carry on
         mFsm.Update();
         Aim();
 
@@ -60,8 +80,7 @@ public class Player : MonoBehaviour
         if (Input.GetButton("Fire1"))
         {
             mAttackButtons[0] = true;
-            mAttackButtons[1] = false;
-            mAttackButtons[2] = false;
+            Fire(0);
         }
         else
         {
@@ -89,6 +108,10 @@ public class Player : MonoBehaviour
         {
             mAttackButtons[2] = false;
         }
+
+
+
+
     }
 
     public void Aim()
@@ -168,6 +191,8 @@ public class Player : MonoBehaviour
 
     public void Move()
     {
+        if (!mPhotonView.IsMine) return;
+
         mPlayerMovement.HandleInputs();
         mPlayerMovement.Move();
     }
@@ -179,36 +204,40 @@ public class Player : MonoBehaviour
 
     public void Reload()
     {
+        StartCoroutine(Coroutine_DelayReloadSound());
+    }
 
+    IEnumerator Coroutine_DelayReloadSound(float duration = 1.0f)
+    {
+        yield return new WaitForSeconds(duration);
+
+        //    mAudioSource.PlayOneShot();
     }
 
     public void Fire(int id)
     {
-        if (mFiring[id] == false)
-        {
-            StartCoroutine(Coroutine_Firing(id));
-        }
+        FireBullet(id);
     }
 
-    public void FireBullet()
+    public void FireBullet(int id)
     {
         if (mBulletPrefab == null) return;
 
         Vector3 dir = -mGunTransform.right.normalized;
-        Vector3 firePoint = mGunTransform.transform.position + dir *
-            1.2f - mGunTransform.forward * 0.1f;
-        GameObject bullet = Instantiate(mBulletPrefab, firePoint,
-            Quaternion.LookRotation(dir) * Quaternion.AngleAxis(90.0f, Vector3.right));
+        Vector3 firePoint = mGunTransform.transform.position + dir * 1.2f - mGunTransform.forward * 0.1f;
+        GameObject bullet = Instantiate(mBulletPrefab, firePoint, Quaternion.LookRotation(dir) * Quaternion.AngleAxis(90.0f, Vector3.right));
 
         bullet.GetComponent<Rigidbody>().AddForce(dir * mBulletSpeed, ForceMode.Impulse);
-    }
-
-    IEnumerator Coroutine_Firing(int id)
-    {
-        mFiring[id] = true;
-        FireBullet();
-        yield return new WaitForSeconds(1.0f / RoundsPerSecond[id]);
-        mFiring[id] = false;
+        // mAudioSource.PlayOneShot();
         mBulletsInMagazine -= 1;
     }
+
+    //  IEnumerator Coroutine_Firing(int id)
+    // {
+    //    mFiring[id] = true;
+    //   FireBullet();
+    //   yield return new WaitForSeconds(1.0f / RoundsPerSecond[id]);
+    //   mFiring[id] = false;
+    //   mBulletsInMagazine -= 1;
+    // }
 }

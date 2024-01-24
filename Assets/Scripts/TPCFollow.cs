@@ -38,6 +38,8 @@ namespace PGGE
             Vector3 position = Vector3.Lerp(mCameraTransform.position,
                 desiredPosition, Time.deltaTime * CameraConstants.Damping);
             mCameraTransform.position = position;
+
+            base.RepositionCamera();
         }
     }
 }

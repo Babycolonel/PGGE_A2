@@ -28,9 +28,17 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 mVelocity = new Vector3(0.0f, 0.0f, 0.0f);
 
+    public AudioClip mWalkSound;
+    public AudioClip mRunSound;
+    public AudioSource mAudioSource;
+    Dictionary<AudioClip, bool> mSoundStatus = new
+Dictionary<AudioClip, bool>();
     void Start()
     {
         mCharacterController = GetComponent<CharacterController>();
+        //    audioSource = gameObject.AddComponent<AudioSource>();
+        mSoundStatus.Add(mRunSound, false);
+        mSoundStatus.Add(mWalkSound, false);
     }
 
     void Update()
@@ -41,7 +49,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //ApplyGravity();
+        ApplyGravity();
     }
 
     public void HandleInputs()
@@ -79,7 +87,6 @@ public class PlayerMovement : MonoBehaviour
             Crouch();
         }
     }
-
     public void Move()
     {
         if (crouch) return;
@@ -112,7 +119,25 @@ public class PlayerMovement : MonoBehaviour
             Jump();
             jump = false;
         }
-        ApplyGravity();
+
+        float moveSpeed = vInput * speed;
+        bool isRunning = Input.GetKey(KeyCode.LeftShift) && moveSpeed > 0;
+        bool isWalking = Mathf.Abs(vInput) > 0 || Mathf.Abs(hInput) > 0;
+        if (isRunning)
+        {
+            if (mSoundStatus[mRunSound] == false)
+            {
+                StartCoroutine(Coroutine_PlayRun(mRunSound));
+            }
+        }
+        else if (isWalking)
+        {
+            if (mSoundStatus[mWalkSound] == false)
+            {
+                StartCoroutine(Coroutine_PlayWalk(mWalkSound));
+            }
+        }
+
     }
 
     void Jump()
@@ -142,12 +167,29 @@ public class PlayerMovement : MonoBehaviour
     void ApplyGravity()
     {
         // apply gravity.
-        mVelocity.x = 0.0f;
-        mVelocity.z = 0.0f;
-
         mVelocity.y += mGravity * Time.deltaTime;
-        mCharacterController.Move(mVelocity * Time.deltaTime);
         if (mCharacterController.isGrounded && mVelocity.y < 0)
             mVelocity.y = 0f;
     }
+
+    IEnumerator Coroutine_PlayRun(AudioClip audioClip)
+    {
+        mSoundStatus[audioClip] = true;
+        mAudioSource.volume = 1f;
+        mAudioSource.pitch = 1f;
+        mAudioSource.PlayOneShot(audioClip);
+        yield return new WaitForSeconds(audioClip.length + 0.43f);
+        mSoundStatus[audioClip] = false;
+    }
+    IEnumerator Coroutine_PlayWalk(AudioClip audioClip)
+    {
+        mSoundStatus[audioClip] = true;
+        mAudioSource.volume = 1f;
+        mAudioSource.pitch = 1f;
+        mAudioSource.PlayOneShot(audioClip);
+        yield return new WaitForSeconds(audioClip.length + 0.79f);
+        mSoundStatus[audioClip] = false;
+    }
+
+
 }

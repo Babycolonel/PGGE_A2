@@ -13,4 +13,8 @@ namespace PGGE
         public static float MinPitch { get; set; }
         public static float MaxPitch { get; set; }
     }
+    public static class PlayerConstants
+    {
+        public static LayerMask PlayerMask { get; set; }
+    }
 }

@@ -65,6 +65,8 @@ namespace PGGE
                 Time.deltaTime * CameraConstants.Damping);
 
             mCameraTransform.position = position;
+
+            base.RepositionCamera();
         }
     }
 }
