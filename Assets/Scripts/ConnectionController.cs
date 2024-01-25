@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
-
+using UnityEngine.SceneManagement;
 namespace PGGE
 {
     namespace Multiplayer
@@ -17,6 +17,7 @@ namespace PGGE
             public GameObject mConnectionProgress;
             public GameObject mBtnJoinRoom;
             public GameObject mInpPlayerName;
+            public GameObject mBtnBack;
 
             bool isConnecting = false;
 
@@ -40,6 +41,7 @@ namespace PGGE
                 mBtnJoinRoom.SetActive(false);
                 mInpPlayerName.SetActive(false);
                 mConnectionProgress.SetActive(true);
+                mBtnBack.SetActive(false);
 
                 // we check if we are connected or not, we join if we are, 
                 // else we initiate the connection to the server.
@@ -97,6 +99,11 @@ namespace PGGE
                     Debug.Log("We load the default room for multiplayer");
                     PhotonNetwork.LoadLevel("MultiplayerMap00");
                 }
+            }
+
+            public void Back()
+            {
+                SceneManager.LoadScene(1);
             }
         }
     }
