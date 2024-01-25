@@ -5,8 +5,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 public class Menu : MonoBehaviour
 {
-    public AudioClip clickSound;
     private AudioSource audioSource;
+    public AudioClip clickSound;
+    
 
     private void Start()
     {
@@ -17,8 +18,6 @@ public class Menu : MonoBehaviour
         }
 
         audioSource.clip = clickSound;
-
-        //Button button = GetComponent<Button>();
     }
 
     public IEnumerator WaitForSoundClipSingle()
